@@ -12,6 +12,7 @@ RUN npm install
 # Copy the rest of your code
 COPY . .
 
+RUN chmod +x /app/entrypoint.sh
 
 # Expose Next.js dev server port
 EXPOSE 3000
