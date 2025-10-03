@@ -2,9 +2,78 @@ import { Button } from "@/components/ui/button";
 import { DiceRoll } from "@dice-roller/rpg-dice-roller";
 import { neon } from  '@neondatabase/serverless';
 import { redirect } from 'next/navigation';
+import RollHistoryTable from "@/components/ui/roll-history-table";
+
+// Function to fetch roll history from database
+async function getRollHistory() {
+  try {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    
+    const rollsQuery = await sql`
+      SELECT 
+        r.rollid,
+        r.userid,
+        u.name as username,
+        u.email,
+        c.name as character_name,
+        camp.name as campaign_name,
+        s.title as session_title,
+        r.purposeid as purpose,
+        p.url,
+        r.ts as timestamp
+      FROM roll r
+      JOIN app_user u ON r.userid = u.userid
+      JOIN character c ON r.characterid = c.characterid  
+      JOIN campaign camp ON c.campaignid = camp.campaignid
+      JOIN session s ON r.sessionid = s.sessionid
+      LEFT JOIN post p ON r.postid = p.postid
+      ORDER BY r.ts DESC
+      LIMIT 20
+    `;
+    
+    // Get dice results for each roll
+    const rollsWithDice = await Promise.all(
+      rollsQuery.map(async (roll) => {
+        const diceResults = await sql`
+          SELECT dt.code, dr.value
+          FROM dieresult dr
+          JOIN dietype dt ON dr.dietypeid = dt.dietypeid
+          WHERE dr.rollid = ${roll.rollid}
+        `;
+        
+        const dice_results = {
+          BD: diceResults.find(d => d.code === 'BD')?.value || 0,
+          CD: diceResults.find(d => d.code === 'CD')?.value || 0,
+          LD: diceResults.find(d => d.code === 'LD')?.value || 0,
+          MD: diceResults.find(d => d.code === 'MD')?.value || 0,
+        };
+        
+        return {
+          rollid: roll.rollid,
+          userid: roll.userid,
+          username: roll.username,
+          email: roll.email || undefined,
+          character_name: roll.character_name,
+          campaign_name: roll.campaign_name,
+          session_title: roll.session_title,
+          purpose: roll.purpose,
+          url: roll.url || undefined,
+          timestamp: roll.timestamp,
+          dice_results
+        };
+      })
+    );
+    
+    return rollsWithDice;
+  } catch (error) {
+    console.error('Error fetching roll history:', error);
+    return [];
+  }
+}
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ success?: string, error?: string, bd?: string, cd?: string, ld?: string, md?: string }> }) {
   const params = await searchParams;
+  const rollHistory = await getRollHistory();
   async function form(formData: FormData) {
     'use server';
     try {
@@ -34,8 +103,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
 
     // Insert records into the database
     const userid = await sql`INSERT INTO app_user (name, email) VALUES (${username}, ${email}) RETURNING userid`;
-    const characterid = await sql`INSERT INTO character (name, owneruserid) VALUES (${character_name}, ${userid[0].userid}) RETURNING characterid`;
     const campaignid = await sql`INSERT INTO campaign (name, title, system, ispublic) VALUES (${campaign}, ${campaign}, 'SAO RPG', true) RETURNING campaignid`;
+    const characterid = await sql`INSERT INTO character (name, owneruserid, campaignid) VALUES (${character_name}, ${userid[0].userid}, ${campaignid[0].campaignid}) RETURNING characterid`;
     const sessionid = await sql`INSERT INTO session (title, campaignid, starttime) VALUES (${session_name}, ${campaignid[0].campaignid}, NOW()) RETURNING sessionid`;
     
     // Insert post record if URL is provided
@@ -79,7 +148,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
     
     for (const result of diceResults) {
       if (dietypeMap[result.code]) {
-        await sql`INSERT INTO dieresult (rollid, dietypeid, value) VALUES (${rollid[0].rollid}, ${dietypeMap[result.code]}, ${result.value})`;
+        await sql`INSERT INTO dieresult (rollid, dietypeid, value) VALUES (${rollid[0].rollid}::INTEGER, ${dietypeMap[result.code]}, ${result.value})`;
       }
     }
     
@@ -172,6 +241,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
                 </div>
             </div>
           </div>
+        </div>
+        
+        {/* Roll History Table */}
+        <div className="mt-8 mx-auto w-full max-w-7xl px-4">
+          <RollHistoryTable rolls={rollHistory} />
         </div>
     </main>
     <footer className="fixed bottom-0 left-0 w-full bg-blue-500 text-white text-center p-4"></footer>
