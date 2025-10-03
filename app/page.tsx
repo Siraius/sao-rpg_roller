@@ -92,7 +92,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
       redirect(`/?success=true&bd=${BDRoll.total}&cd=${CDRoll.total}&ld=${LDRoll.total}&md=${MDRoll.total}`);
     } catch (error) {
       // Check if this is a Next.js redirect (which is expected)
-      if (error.message && error.message.includes('NEXT_REDIRECT')) {
+      if (error instanceof Error && error.message && error.message.includes('NEXT_REDIRECT')) {
         throw error; // Re-throw redirect errors
       }
       console.error('Error processing form:', error);
