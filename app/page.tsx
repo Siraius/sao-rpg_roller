@@ -387,10 +387,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
                   <span className="text-2xl animate-dice-roll">🎲</span>
                   <h2 className="text-2xl font-bold text-white">Roll Dice</h2>
                 </div>
-                <div className="flex items-center space-x-2 mb-6">
-                  <span className="text-2xl">🎲</span>
-                  <h2 className="text-2xl font-bold text-white">Roll Dice</h2>
-                </div>
                 
                 <form action={form} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
