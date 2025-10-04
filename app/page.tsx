@@ -170,85 +170,274 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
   }
 
  return (
-  <div className="flex flex-col min-h-screen justify-center">
-    <header className="sticky top-0 left-0 w-full bg-blue-500 text-white text-center p-4"></header>
-    <main className="flex-1 bg-gray-800">
+  <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
+    <header className="sticky top-0 left-0 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 backdrop-blur-md bg-opacity-95 text-white shadow-lg border-b border-purple-500/30">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-center space-x-3">
+          <div className="text-3xl">⚔️</div>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            SAO RPG Dice Roller
+          </h1>
+          <div className="text-3xl">🎲</div>
+        </div>
+      </div>
+    </header>
+    <main className="flex-1 container mx-auto px-4 py-8">
         {/* Success/Error Messages */}
         {params.success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mx-auto w-2/5 mt-4">
-            <strong className="font-bold">Roll Successful!</strong>
-            <span className="block sm:inline"> Your dice results: </span>
-            <div className="mt-2 text-lg font-bold">
-              BD: {params.bd} | CD: {params.cd} | LD: {params.ld} | MD: {params.md}
+          <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 backdrop-blur-md border border-emerald-400/50 text-emerald-100 px-6 py-4 rounded-xl mx-auto max-w-2xl mt-4 shadow-lg">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">✨</span>
+              <strong className="font-bold text-lg">Roll Successful!</strong>
+            </div>
+            <p className="mt-2 text-emerald-200">Your dice results:</p>
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-blue-500/30 backdrop-blur-sm border border-blue-400/50 rounded-lg p-3 text-center">
+                <div className="text-xs text-blue-200 mb-1">BD (1d10)</div>
+                <div className="text-2xl font-bold text-blue-100">{params.bd}</div>
+              </div>
+              <div className="bg-green-500/30 backdrop-blur-sm border border-green-400/50 rounded-lg p-3 text-center">
+                <div className="text-xs text-green-200 mb-1">CD (1d12)</div>
+                <div className="text-2xl font-bold text-green-100">{params.cd}</div>
+              </div>
+              <div className="bg-yellow-500/30 backdrop-blur-sm border border-yellow-400/50 rounded-lg p-3 text-center">
+                <div className="text-xs text-yellow-200 mb-1">LD (1d20)</div>
+                <div className="text-2xl font-bold text-yellow-100">{params.ld}</div>
+              </div>
+              <div className="bg-purple-500/30 backdrop-blur-sm border border-purple-400/50 rounded-lg p-3 text-center">
+                <div className="text-xs text-purple-200 mb-1">MD (1d10)</div>
+                <div className="text-2xl font-bold text-purple-100">{params.md}</div>
+              </div>
             </div>
           </div>
         )}
         {params.error === 'missing_fields' && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mx-auto w-2/5 mt-4">
-            <strong className="font-bold">Error:</strong>
-            <span className="block sm:inline"> Please fill in all required fields.</span>
+          <div className="bg-gradient-to-r from-red-500/20 to-rose-500/20 backdrop-blur-md border border-red-400/50 text-red-100 px-6 py-4 rounded-xl mx-auto max-w-2xl mt-4 shadow-lg">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">⚠️</span>
+              <strong className="font-bold text-lg">Error</strong>
+            </div>
+            <p className="mt-2 text-red-200">Please fill in all required fields.</p>
           </div>
         )}
         {params.error === 'database_error' && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mx-auto w-2/5 mt-4">
-            <strong className="font-bold">Error:</strong>
-            <span className="block sm:inline"> Database error occurred. Please try again.</span>
+          <div className="bg-gradient-to-r from-red-500/20 to-rose-500/20 backdrop-blur-md border border-red-400/50 text-red-100 px-6 py-4 rounded-xl mx-auto max-w-2xl mt-4 shadow-lg">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">💥</span>
+              <strong className="font-bold text-lg">Database Error</strong>
+            </div>
+            <p className="mt-2 text-red-200">An error occurred. Please try again.</p>
           </div>
         )}
-        <div className="bg-gray-300 gap-4 p-4 flex justify-center rounded my-4 mx-auto w-2/5">
-            <h1 className="text-2xl font-bold">Dice Roller Project</h1>
+        
+        <div className="text-center mb-8 mt-8">
+            <h2 className="text-xl text-gray-300 mb-2">Ready to test your luck in Aincrad?</h2>
+            <p className="text-gray-400 text-sm">Roll your dice and see what fate awaits your character</p>
         </div>
         
-        <div className="flex bg-gray-400 flex-col justify-center p-4 rounded mx-auto w-2/5">
-            <h2 className="font-bold text-xl text-center">Information Fields</h2>
-            <div className="flex flex-row justify-center">
-              <form action={form} >
-                <div className="bg-gray-400">
-
-                  <div className="flex flex-col justify-center w-64 p-4 gap-2">
-
-                      <p>User Name: <span className="text-red-500">*</span></p>
-                      <input type="text" name="username" placeholder="User Name" className="border rounded p-2 bg-gray-100 placeholder-black-400" required />
-                      <p>User Email (Optional):</p>
-                      <input type="text" name="email" placeholder="Email Address" className="border rounded p-2 bg-gray-100 placeholder-black-400" />
-                      <p>Character Name: <span className="text-red-500">*</span></p>
-                      <input type="text" name="character_name" placeholder="Character Name" className="border rounded p-2 bg-gray-100 placeholder-black-400" required />
-                      <p>Link to Post (Optional):</p>
-                      <input type="text" name="url" placeholder="url" className="border rounded p-2 bg-gray-100 placeholder-black-400" />
-                      <p>Purpose of Roll: <span className="text-red-500">*</span></p>
-                      <input type="text" name="purpose" placeholder="Purpose" className="border rounded p-2 bg-gray-100 placeholder-black-400" required />
-                      <p>Campaign: <span className="text-red-500">*</span></p>
-                      <input type="text" name="campaign" placeholder="Campaign" className="border rounded p-2 bg-gray-100 placeholder-black-400" required />
-                      <p>Session Name: <span className="text-red-500">*</span></p>
-                      <input type="text" name="session_name" placeholder="Session Name" className="border rounded p-2 bg-gray-100 placeholder-black-400" required />
-                  </div>
-                  <div className="p-4">
-                    <div>
-                      <Button className="p-4" type="submit" >Roll</Button>
-                      <p className="mt-4 text-sm text-gray-600">Click Roll to generate: BD (1d10) | CD (1d12) | LD (1d20) | MD (1d10)</p>
+        <div className="max-w-6xl mx-auto animate-fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Roll Form */}
+              <div className="bg-gradient-to-br from-slate-800/80 to-purple-900/40 backdrop-blur-md border border-purple-500/30 rounded-2xl p-6 shadow-2xl hover-glow animate-slide-up">
+                <div className="flex items-center space-x-2 mb-6">
+                  <span className="text-2xl animate-dice-roll">🎲</span>
+                  <h2 className="text-2xl font-bold text-white">Roll Dice</h2>
+                </div>
+                <div className="flex items-center space-x-2 mb-6">
+                  <span className="text-2xl">🎲</span>
+                  <h2 className="text-2xl font-bold text-white">Roll Dice</h2>
+                </div>
+                
+                <form action={form} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-200">
+                        User Name <span className="text-red-400">*</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        name="username" 
+                        placeholder="Enter your username" 
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                        required 
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-200">
+                        Email Address <span className="text-gray-400">(Optional)</span>
+                      </label>
+                      <input 
+                        type="email" 
+                        name="email" 
+                        placeholder="your@email.com" 
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                      />
                     </div>
                   </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-200">
+                        Character Name <span className="text-red-400">*</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        name="character_name" 
+                        placeholder="Your character's name" 
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                        required 
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-200">
+                        Campaign <span className="text-red-400">*</span>
+                      </label>
+                      <input 
+                        type="text" 
+                        name="campaign" 
+                        placeholder="Campaign name" 
+                        className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                        required 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-200">
+                      Session Name <span className="text-red-400">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      name="session_name" 
+                      placeholder="Current session name" 
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                      required 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-200">
+                      Purpose of Roll <span className="text-red-400">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      name="purpose" 
+                      placeholder="What are you rolling for?" 
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                      required 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-200">
+                      Post URL <span className="text-gray-400">(Optional)</span>
+                    </label>
+                    <input 
+                      type="url" 
+                      name="url" 
+                      placeholder="https://..." 
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400 transition-all" 
+                    />
+                  </div>
+                  
+                  <div className="pt-4 border-t border-purple-500/30">
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-purple-500/25"
+                      size="lg"
+                    >
+                      <span className="text-xl mr-2">🎲</span>
+                      Roll Dice
+                    </Button>
+                    <div className="mt-4 p-3 bg-slate-800/30 rounded-lg border border-slate-600/50">
+                      <p className="text-sm text-gray-300 text-center">
+                        <span className="font-semibold">Dice Types:</span>
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
+                        <span className="text-blue-300">BD (1d10)</span>
+                        <span className="text-green-300">CD (1d12)</span>
+                        <span className="text-yellow-300">LD (1d20)</span>
+                        <span className="text-purple-300">MD (1d10)</span>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              
+              {/* Search Panel */}
+              <div className="bg-gradient-to-br from-slate-800/80 to-blue-900/40 backdrop-blur-md border border-blue-500/30 rounded-2xl p-6 shadow-2xl hover-glow animate-slide-up">
+                <div className="flex items-center space-x-2 mb-6">
+                  <span className="text-2xl">🔍</span>
+                  <h2 className="text-2xl font-bold text-white">Search Rolls</h2>
                 </div>
-              </form>
-              <div className="bg-gray-400 p-4 w-64 flex p-4 flex-col justify-center">
-                <p>Search Fields</p>
-                <div className="flex flex-col gap-2">
-                  <input type="text" name = "roll_id" placeholder="Roll ID" className="border rounded p-2 bg-gray-100 placeholder-black-400" />
-                  <input type="text" name = "character_name" placeholder="Character Name" className="border rounded p-2 bg-gray-100 placeholder-black-400" />
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-200">
+                      Roll ID
+                    </label>
+                    <input 
+                      type="text" 
+                      name="roll_id" 
+                      placeholder="Enter Roll ID" 
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-200">
+                      Character Name
+                    </label>
+                    <input 
+                      type="text" 
+                      name="character_name" 
+                      placeholder="Search by character" 
+                      className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
+                    />
+                  </div>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-blue-500/25"
+                  >
+                    <span className="text-lg mr-2">🔍</span>
+                    Search
+                  </Button>
+                  
+                  <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-600/50">
+                    <p className="text-sm text-gray-300 mb-2 font-semibold">Quick Tips:</p>
+                    <ul className="text-xs text-gray-400 space-y-1">
+                      <li>• Use Roll ID for exact matches</li>
+                      <li>• Character search is case-sensitive</li>
+                      <li>• Leave empty to see all results</li>
+                    </ul>
+                  </div>
                 </div>
-                <div className="p-4">
-                  <Button>Search</Button>
-                </div>
+              </div>
             </div>
-          </div>
         </div>
         
         {/* Roll History Table */}
-        <div className="mt-8 mx-auto w-full max-w-7xl px-4">
+        <div className="mt-8 mx-auto w-full max-w-7xl px-4 animate-fade-in">
           <RollHistoryTable rolls={rollHistory} />
         </div>
     </main>
-    <footer className="fixed bottom-0 left-0 w-full bg-blue-500 text-white text-center p-4"></footer>
+    <footer className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-t border-purple-500/30 text-white mt-12">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="text-center md:text-left">
+            <p className="text-sm text-gray-300">SAO RPG Dice Roller © 2024</p>
+            <p className="text-xs text-gray-400">May your rolls be ever in your favor</p>
+          </div>
+          <div className="flex items-center space-x-4 text-sm text-gray-400">
+            <span>Built with Next.js</span>
+            <span>•</span>
+            <span>Powered by Neon DB</span>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
  );
 }

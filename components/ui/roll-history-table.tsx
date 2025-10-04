@@ -26,106 +26,193 @@ interface RollHistoryTableProps {
 export default function RollHistoryTable({ rolls }: RollHistoryTableProps) {
   if (rolls.length === 0) {
     return (
-      <div className="bg-gray-300 rounded p-4 text-center">
-        <p className="text-gray-600">No rolls recorded yet. Roll some dice to see them here!</p>
+      <div className="bg-gradient-to-br from-slate-800/60 to-purple-900/30 backdrop-blur-md border border-purple-500/30 rounded-2xl p-8 text-center shadow-2xl">
+        <div className="text-6xl mb-4">🎲</div>
+        <h3 className="text-xl font-bold text-white mb-2">No rolls yet!</h3>
+        <p className="text-gray-300">Roll some dice to start building your adventure history</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-300 rounded p-4">
-      <h2 className="font-bold text-xl mb-4 text-center">Roll History</h2>
-      <div className="overflow-x-auto shadow-lg rounded-lg">
-        <table className="w-full border-collapse border border-gray-400 bg-white rounded min-w-max">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-400 px-2 py-2 text-left text-sm font-semibold">Roll ID</th>
-              <th className="border border-gray-400 px-2 py-2 text-left text-sm font-semibold">User</th>
-              <th className="border border-gray-400 px-2 py-2 text-left text-sm font-semibold">Character</th>
-              <th className="border border-gray-400 px-2 py-2 text-left text-sm font-semibold">Campaign</th>
-              <th className="border border-gray-400 px-2 py-2 text-left text-sm font-semibold">Purpose</th>
-              <th className="border border-gray-400 px-2 py-2 text-center text-sm font-semibold">BD<br/><span className="text-xs font-normal">(1d10)</span></th>
-              <th className="border border-gray-400 px-2 py-2 text-center text-sm font-semibold">CD<br/><span className="text-xs font-normal">(1d12)</span></th>
-              <th className="border border-gray-400 px-2 py-2 text-center text-sm font-semibold">LD<br/><span className="text-xs font-normal">(1d20)</span></th>
-              <th className="border border-gray-400 px-2 py-2 text-center text-sm font-semibold">MD<br/><span className="text-xs font-normal">(1d10)</span></th>
-              <th className="border border-gray-400 px-2 py-2 text-left text-sm font-semibold">Date/Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rolls.map((roll) => (
-              <tr key={roll.rollid} className="hover:bg-gray-50 transition-colors">
-                <td className="border border-gray-400 px-2 py-2 font-mono text-sm">
-                  <span className="bg-gray-100 px-1 rounded text-xs">#{roll.rollid}</span>
-                </td>
-                <td className="border border-gray-400 px-2 py-2">
-                  <div>
-                    <div className="font-semibold text-sm">{roll.username}</div>
-                    {roll.email && (
-                      <div className="text-xs text-gray-600 truncate max-w-24">{roll.email}</div>
-                    )}
-                  </div>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-sm">
-                  <span className="font-medium">{roll.character_name}</span>
-                </td>
-                <td className="border border-gray-400 px-2 py-2">
-                  <div>
-                    <div className="font-semibold text-sm">{roll.campaign_name}</div>
-                    <div className="text-xs text-gray-600">{roll.session_title}</div>
-                  </div>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-sm max-w-32">
-                  <div>
-                    <div className="truncate">{roll.purpose}</div>
-                    {roll.url && (
-                      <div className="text-xs mt-1">
-                        <a 
-                          href={roll.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline inline-flex items-center"
-                        >
-                          🔗 <span className="ml-1">Link</span>
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-center">
-                  <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold text-lg min-w-8">
-                    {roll.dice_results.BD}
-                  </span>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-center">
-                  <span className="inline-block bg-green-100 text-green-800 px-2 py-1 rounded font-bold text-lg min-w-8">
-                    {roll.dice_results.CD}
-                  </span>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-center">
-                  <span className="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-bold text-lg min-w-8">
-                    {roll.dice_results.LD}
-                  </span>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-center">
-                  <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold text-lg min-w-8">
-                    {roll.dice_results.MD}
-                  </span>
-                </td>
-                <td className="border border-gray-400 px-2 py-2 text-xs text-gray-600 min-w-32">
-                  <div>{new Date(roll.timestamp).toLocaleDateString()}</div>
-                  <div>{new Date(roll.timestamp).toLocaleTimeString()}</div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="bg-gradient-to-br from-slate-800/80 to-indigo-900/40 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-6 shadow-2xl">
+      <div className="flex items-center justify-center space-x-3 mb-6">
+        <span className="text-3xl">📜</span>
+        <h2 className="text-2xl font-bold text-white">Adventure History</h2>
+        <span className="text-3xl">🎲</span>
       </div>
-      <div className="mt-2 text-xs text-gray-600 text-center">
-        <span className="font-semibold">Legend:</span> 
-        <span className="ml-2">BD (Basic Dice 1d10)</span>
-        <span className="ml-2">CD (Combo Dice 1d12)</span>
-        <span className="ml-2">LD (Lucky Dice 1d20)</span>
-        <span className="ml-2">MD (Modifier Dice 1d10)</span>
+      
+      {/* Mobile Card Layout */}
+      <div className="block lg:hidden space-y-4">
+        {rolls.map((roll) => (
+          <div key={roll.rollid} className="bg-slate-800/50 border border-slate-600/50 rounded-xl p-4 hover:border-purple-500/50 transition-all duration-200">
+            <div className="flex justify-between items-start mb-3">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-lg text-xs font-mono">
+                    #{roll.rollid}
+                  </span>
+                  <span className="text-white font-semibold">{roll.username}</span>
+                </div>
+                <div className="text-sm text-gray-300">{roll.character_name}</div>
+                <div className="text-xs text-gray-400">
+                  {roll.campaign_name} • {roll.session_title}
+                </div>
+              </div>
+              <div className="text-xs text-gray-400 text-right">
+                <div>{new Date(roll.timestamp).toLocaleDateString()}</div>
+                <div>{new Date(roll.timestamp).toLocaleTimeString()}</div>
+              </div>
+            </div>
+            
+            <div className="mb-3">
+              <div className="text-sm text-gray-300 mb-1">Purpose:</div>
+              <div className="text-white text-sm">{roll.purpose}</div>
+              {roll.url && (
+                <a 
+                  href={roll.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300 text-xs mt-1 inline-flex items-center"
+                >
+                  🔗 <span className="ml-1">View Post</span>
+                </a>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-4 gap-2">
+              <div className="bg-blue-500/20 border border-blue-400/30 rounded-lg p-2 text-center">
+                <div className="text-xs text-blue-300 mb-1">BD</div>
+                <div className="text-lg font-bold text-blue-100">{roll.dice_results.BD}</div>
+              </div>
+              <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-2 text-center">
+                <div className="text-xs text-green-300 mb-1">CD</div>
+                <div className="text-lg font-bold text-green-100">{roll.dice_results.CD}</div>
+              </div>
+              <div className="bg-yellow-500/20 border border-yellow-400/30 rounded-lg p-2 text-center">
+                <div className="text-xs text-yellow-300 mb-1">LD</div>
+                <div className="text-lg font-bold text-yellow-100">{roll.dice_results.LD}</div>
+              </div>
+              <div className="bg-purple-500/20 border border-purple-400/30 rounded-lg p-2 text-center">
+                <div className="text-xs text-purple-300 mb-1">MD</div>
+                <div className="text-lg font-bold text-purple-100">{roll.dice_results.MD}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Desktop Table Layout */}
+      <div className="hidden lg:block overflow-x-auto">
+        <div className="bg-slate-900/50 rounded-xl border border-slate-600/50 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-slate-800 to-indigo-900 border-b border-slate-600/50">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-200">Roll</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-200">Player</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-200">Character</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-200">Campaign</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-200">Purpose</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-blue-300">BD<br/><span className="text-xs font-normal">(1d10)</span></th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-green-300">CD<br/><span className="text-xs font-normal">(1d12)</span></th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-yellow-300">LD<br/><span className="text-xs font-normal">(1d20)</span></th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-purple-300">MD<br/><span className="text-xs font-normal">(1d10)</span></th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-200">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rolls.map((roll, index) => (
+                <tr key={roll.rollid} className={`hover:bg-slate-800/50 transition-colors border-b border-slate-700/30 ${index % 2 === 0 ? 'bg-slate-800/20' : 'bg-slate-800/10'}`}>
+                  <td className="px-4 py-3">
+                    <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-lg text-xs font-mono">
+                      #{roll.rollid}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div>
+                      <div className="font-semibold text-sm text-white">{roll.username}</div>
+                      {roll.email && (
+                        <div className="text-xs text-gray-400 truncate max-w-32">{roll.email}</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="font-medium text-white text-sm">{roll.character_name}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div>
+                      <div className="font-semibold text-sm text-white">{roll.campaign_name}</div>
+                      <div className="text-xs text-gray-400">{roll.session_title}</div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="max-w-48">
+                      <div className="text-white text-sm truncate">{roll.purpose}</div>
+                      {roll.url && (
+                        <div className="text-xs mt-1">
+                          <a 
+                            href={roll.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 inline-flex items-center"
+                          >
+                            🔗 <span className="ml-1">Link</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-block bg-blue-500/20 text-blue-100 border border-blue-400/30 px-3 py-2 rounded-lg font-bold text-lg min-w-12">
+                      {roll.dice_results.BD}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-block bg-green-500/20 text-green-100 border border-green-400/30 px-3 py-2 rounded-lg font-bold text-lg min-w-12">
+                      {roll.dice_results.CD}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-block bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 px-3 py-2 rounded-lg font-bold text-lg min-w-12">
+                      {roll.dice_results.LD}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className="inline-block bg-purple-500/20 text-purple-100 border border-purple-400/30 px-3 py-2 rounded-lg font-bold text-lg min-w-12">
+                      {roll.dice_results.MD}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400 min-w-28">
+                    <div>{new Date(roll.timestamp).toLocaleDateString()}</div>
+                    <div>{new Date(roll.timestamp).toLocaleTimeString()}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-600/50">
+        <p className="text-sm text-gray-300 mb-2 font-semibold text-center">Dice Legend:</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-blue-500 rounded"></div>
+            <span className="text-blue-300">BD - Basic Dice (1d10)</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-green-500 rounded"></div>
+            <span className="text-green-300">CD - Combo Dice (1d12)</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+            <span className="text-yellow-300">LD - Lucky Dice (1d20)</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-purple-500 rounded"></div>
+            <span className="text-purple-300">MD - Modifier Dice (1d10)</span>
+          </div>
+        </div>
       </div>
     </div>
   );
