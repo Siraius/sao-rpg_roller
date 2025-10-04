@@ -289,22 +289,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
     }
   }
 
- return (
-  <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
-    <header className="sticky top-0 left-0 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 backdrop-blur-md bg-opacity-95 text-white shadow-lg border-b border-purple-500/30">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-center space-x-3">
-          <div className="text-3xl">⚔️</div>
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            SAO RPG Dice Roller
-          </h1>
-          <div className="text-3xl">🎲</div>
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
+      <header className="sticky top-0 left-0 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 backdrop-blur-md bg-opacity-95 text-white shadow-lg border-b border-purple-500/30">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="text-3xl">⚔️</div>
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              SAO RPG Dice Roller
+            </h1>
+            <div className="text-3xl">🎲</div>
+          </div>
         </div>
-      </div>
-    </header>
-    <main className="flex-1 container mx-auto px-4 py-8">
-        {/* Success/Error Messages */}
-        {params.success && (
+      </header>
+      <main className="flex-1 container mx-auto px-4 py-8">
+          {/* Success/Error Messages */}
+          {params.success && (
           <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 backdrop-blur-md border border-emerald-400/50 text-emerald-100 px-6 py-4 rounded-xl mx-auto max-w-2xl mt-4 shadow-lg">
             <div className="flex items-center space-x-2">
               <span className="text-2xl">✨</span>
@@ -374,13 +374,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
           </div>
         )}
         
-        <div className="text-center mb-8 mt-8">
-            <h2 className="text-xl text-gray-300 mb-2">Ready to test your luck in Aincrad?</h2>
-            <p className="text-gray-400 text-sm">Roll your dice and see what fate awaits your character</p>
-        </div>
-        
-        <div className="max-w-6xl mx-auto animate-fade-in">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="text-center mb-8 mt-8">
+              <h2 className="text-xl text-gray-300 mb-2">Ready to test your luck in Aincrad?</h2>
+              <p className="text-gray-400 text-sm">Roll your dice and see what fate awaits your character</p>
+          </div>
+          
+          <div className="max-w-6xl mx-auto animate-fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Roll Form */}
               <div className="bg-gradient-to-br from-slate-800/80 to-purple-900/40 backdrop-blur-md border border-purple-500/30 rounded-2xl p-6 shadow-2xl hover-glow animate-slide-up">
                 <div className="flex items-center space-x-2 mb-6">
@@ -573,31 +573,31 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
                   </div>
                 </div>
               </div>
-            </div>
-        </div>
+              </div>
+          </div>
         
-        {/* Roll History Table */}
-        <div className="mt-8 mx-auto w-full max-w-7xl px-4 animate-fade-in">
-          <RollHistoryTable rolls={rollHistory} />
-        </div>
-    </main>
-    <footer className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-t border-purple-500/30 text-white mt-12">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-center md:text-left">
-            <p className="text-sm text-gray-300">SAO RPG Dice Roller © 2024</p>
-            <p className="text-xs text-gray-400">May your rolls be ever in your favor</p>
+          {/* Roll History Table */}
+          <div className="mt-8 mx-auto w-full max-w-7xl px-4 animate-fade-in">
+            <RollHistoryTable rolls={rollHistory} />
           </div>
-          <div className="flex items-center space-x-4 text-sm text-gray-400">
-            <span>Built with Next.js</span>
-            <span>•</span>
-            <span>Powered by Neon DB</span>
+      </main>
+      <footer className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-t border-purple-500/30 text-white mt-12">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-center md:text-left">
+              <p className="text-sm text-gray-300">SAO RPG Dice Roller © 2024</p>
+              <p className="text-xs text-gray-400">May your rolls be ever in your favor</p>
+            </div>
+            <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <span>Built with Next.js</span>
+              <span>•</span>
+              <span>Powered by Neon DB</span>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
-  </div>
- );
+      </footer>
+    </div>
+  );
 }
 
 
