@@ -5,31 +5,113 @@ import { redirect } from 'next/navigation';
 import RollHistoryTable from "@/components/ui/roll-history-table";
 
 // Function to fetch roll history from database
-async function getRollHistory() {
+async function getRollHistory(rollId?: string, characterName?: string) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
     
-    const rollsQuery = await sql`
-      SELECT 
-        r.rollid,
-        r.userid,
-        u.name as username,
-        u.email,
-        c.name as character_name,
-        camp.name as campaign_name,
-        s.title as session_title,
-        r.purposeid as purpose,
-        p.url,
-        r.ts as timestamp
-      FROM roll r
-      JOIN app_user u ON r.userid = u.userid
-      JOIN character c ON r.characterid = c.characterid  
-      JOIN campaign camp ON c.campaignid = camp.campaignid
-      JOIN session s ON r.sessionid = s.sessionid
-      LEFT JOIN post p ON r.postid = p.postid
-      ORDER BY r.ts DESC
-      LIMIT 20
-    `;
+    let rollsQuery;
+    
+    // Handle different search scenarios
+    if (rollId && rollId.trim() !== '') {
+      // Search by Roll ID (exact match)
+      const parsedRollId = parseInt(rollId);
+      if (characterName && characterName.trim() !== '') {
+        // Both Roll ID and Character Name
+        rollsQuery = await sql`
+          SELECT 
+            r.rollid,
+            r.userid,
+            u.name as username,
+            u.email,
+            c.name as character_name,
+            camp.name as campaign_name,
+            s.title as session_title,
+            r.purposeid as purpose,
+            p.url,
+            r.ts as timestamp
+          FROM roll r
+          JOIN app_user u ON r.userid = u.userid
+          JOIN character c ON r.characterid = c.characterid  
+          JOIN campaign camp ON c.campaignid = camp.campaignid
+          JOIN session s ON r.sessionid = s.sessionid
+          LEFT JOIN post p ON r.postid = p.postid
+          WHERE r.rollid = ${parsedRollId} AND LOWER(c.name) LIKE LOWER(${`%${characterName}%`})
+          ORDER BY r.ts DESC
+          LIMIT 50
+        `;
+      } else {
+        // Only Roll ID
+        rollsQuery = await sql`
+          SELECT 
+            r.rollid,
+            r.userid,
+            u.name as username,
+            u.email,
+            c.name as character_name,
+            camp.name as campaign_name,
+            s.title as session_title,
+            r.purposeid as purpose,
+            p.url,
+            r.ts as timestamp
+          FROM roll r
+          JOIN app_user u ON r.userid = u.userid
+          JOIN character c ON r.characterid = c.characterid  
+          JOIN campaign camp ON c.campaignid = camp.campaignid
+          JOIN session s ON r.sessionid = s.sessionid
+          LEFT JOIN post p ON r.postid = p.postid
+          WHERE r.rollid = ${parsedRollId}
+          ORDER BY r.ts DESC
+          LIMIT 50
+        `;
+      }
+    } else if (characterName && characterName.trim() !== '') {
+      // Search by Character Name only
+      rollsQuery = await sql`
+        SELECT 
+          r.rollid,
+          r.userid,
+          u.name as username,
+          u.email,
+          c.name as character_name,
+          camp.name as campaign_name,
+          s.title as session_title,
+          r.purposeid as purpose,
+          p.url,
+          r.ts as timestamp
+        FROM roll r
+        JOIN app_user u ON r.userid = u.userid
+        JOIN character c ON r.characterid = c.characterid  
+        JOIN campaign camp ON c.campaignid = camp.campaignid
+        JOIN session s ON r.sessionid = s.sessionid
+        LEFT JOIN post p ON r.postid = p.postid
+        WHERE LOWER(c.name) LIKE LOWER(${`%${characterName}%`})
+        ORDER BY r.ts DESC
+        LIMIT 50
+      `;
+    } else {
+      // No search parameters - get all recent rolls
+      rollsQuery = await sql`
+        SELECT 
+          r.rollid,
+          r.userid,
+          u.name as username,
+          u.email,
+          c.name as character_name,
+          camp.name as campaign_name,
+          s.title as session_title,
+          r.purposeid as purpose,
+          p.url,
+          r.ts as timestamp
+        FROM roll r
+        JOIN app_user u ON r.userid = u.userid
+        JOIN character c ON r.characterid = c.characterid  
+        JOIN campaign camp ON c.campaignid = camp.campaignid
+        JOIN session s ON r.sessionid = s.sessionid
+        LEFT JOIN post p ON r.postid = p.postid
+        ORDER BY r.ts DESC
+        LIMIT 20
+      `;
+    }
     
     // Get dice results for each roll
     const rollsWithDice = await Promise.all(
@@ -71,9 +153,47 @@ async function getRollHistory() {
   }
 }
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ success?: string, error?: string, bd?: string, cd?: string, ld?: string, md?: string }> }) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ 
+  success?: string, 
+  error?: string, 
+  bd?: string, 
+  cd?: string, 
+  ld?: string, 
+  md?: string,
+  roll_id?: string,
+  character_name?: string,
+  search_performed?: string,
+  no_results?: string
+}> }) {
   const params = await searchParams;
-  const rollHistory = await getRollHistory();
+  const rollHistory = await getRollHistory(params.roll_id, params.character_name);
+  
+  async function searchForm(formData: FormData) {
+    'use server';
+    const rollId = formData.get('roll_id') as string;
+    const characterName = formData.get('character_name') as string;
+    
+    // Build search URL parameters
+    const searchParamsArray = [];
+    if (rollId && rollId.trim() !== '') {
+      searchParamsArray.push(`roll_id=${encodeURIComponent(rollId.trim())}`);
+    }
+    if (characterName && characterName.trim() !== '') {
+      searchParamsArray.push(`character_name=${encodeURIComponent(characterName.trim())}`);
+    }
+    
+    // Add search performed flag
+    searchParamsArray.push('search_performed=true');
+    
+    const searchQuery = searchParamsArray.length > 0 ? '?' + searchParamsArray.join('&') : '?search_performed=true';
+    redirect(searchQuery);
+  }
+  
+  async function clearSearch() {
+    'use server';
+    redirect('/');
+  }
+  
   async function form(formData: FormData) {
     'use server';
     try {
@@ -230,6 +350,30 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
           </div>
         )}
         
+        {/* Search Results Messages */}
+        {params.search_performed && (
+          <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-md border border-blue-400/50 text-blue-100 px-6 py-4 rounded-xl mx-auto max-w-2xl mt-4 shadow-lg">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">🔍</span>
+              <strong className="font-bold text-lg">Search Results</strong>
+            </div>
+            <p className="mt-2 text-blue-200">
+              {rollHistory.length === 0 ? (
+                <span>⚠️ No rolls found matching your search criteria. Try different search terms.</span>
+              ) : (
+                <span>✓ Found {rollHistory.length} roll{rollHistory.length !== 1 ? 's' : ''} matching your search.</span>
+              )}
+            </p>
+            {(params.roll_id || params.character_name) && (
+              <div className="mt-2 text-sm text-blue-300">
+                <strong>Search terms:</strong>
+                {params.roll_id && <span className="ml-2 bg-blue-500/30 px-2 py-1 rounded">Roll ID: {params.roll_id}</span>}
+                {params.character_name && <span className="ml-2 bg-blue-500/30 px-2 py-1 rounded">Character: {params.character_name}</span>}
+              </div>
+            )}
+          </div>
+        )}
+        
         <div className="text-center mb-8 mt-8">
             <h2 className="text-xl text-gray-300 mb-2">Ready to test your luck in Aincrad?</h2>
             <p className="text-gray-400 text-sm">Roll your dice and see what fate awaits your character</p>
@@ -373,7 +517,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
                   <h2 className="text-2xl font-bold text-white">Search Rolls</h2>
                 </div>
                 
-                <div className="space-y-4">
+                <form action={searchForm} className="space-y-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-200">
                       Roll ID
@@ -382,6 +526,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
                       type="text" 
                       name="roll_id" 
                       placeholder="Enter Roll ID" 
+                      defaultValue={params.roll_id || ''}
                       className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
                     />
                   </div>
@@ -394,23 +539,40 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
                       type="text" 
                       name="character_name" 
                       placeholder="Search by character" 
+                      defaultValue={params.character_name || ''}
                       className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
                     />
                   </div>
                   
-                  <Button 
-                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-blue-500/25"
-                  >
-                    <span className="text-lg mr-2">🔍</span>
-                    Search
-                  </Button>
+                  <div className="space-y-2">
+                    <Button 
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-blue-500/25"
+                    >
+                      <span className="text-lg mr-2">🔍</span>
+                      Search
+                    </Button>
+                    
+                    {params.search_performed && (
+                      <form action={clearSearch}>
+                        <Button 
+                          type="submit"
+                          className="w-full bg-gradient-to-r from-gray-600 to-slate-600 hover:from-gray-700 hover:to-slate-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200"
+                        >
+                          ✖️ Clear Search
+                        </Button>
+                      </form>
+                    )}
+                  </div>
+                </form>
                   
                   <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-600/50">
-                    <p className="text-sm text-gray-300 mb-2 font-semibold">Quick Tips:</p>
+                    <p className="text-sm text-gray-300 mb-2 font-semibold">💡 Search Tips:</p>
                     <ul className="text-xs text-gray-400 space-y-1">
-                      <li>• Use Roll ID for exact matches</li>
-                      <li>• Character search is case-sensitive</li>
-                      <li>• Leave empty to see all results</li>
+                      <li>• <strong>Roll ID:</strong> Enter specific roll number for exact match</li>
+                      <li>• <strong>Character:</strong> Partial names work (case-insensitive)</li>
+                      <li>• <strong>Combined:</strong> Use both fields to narrow results</li>
+                      <li>• <strong>Clear:</strong> Leave both empty to see all recent rolls</li>
                     </ul>
                   </div>
                 </div>
