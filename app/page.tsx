@@ -170,23 +170,32 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
   
   async function searchForm(formData: FormData) {
     'use server';
-    const rollId = formData.get('roll_id') as string;
-    const characterName = formData.get('character_name') as string;
-    
-    // Build search URL parameters
-    const searchParamsArray = [];
-    if (rollId && rollId.trim() !== '') {
-      searchParamsArray.push(`roll_id=${encodeURIComponent(rollId.trim())}`);
+    try {
+      const rollId = formData.get('roll_id') as string;
+      const characterName = formData.get('character_name') as string;
+      
+      // Build search URL parameters
+      const searchParamsArray = [];
+      if (rollId && rollId.trim() !== '') {
+        searchParamsArray.push(`roll_id=${encodeURIComponent(rollId.trim())}`);
+      }
+      if (characterName && characterName.trim() !== '') {
+        searchParamsArray.push(`character_name=${encodeURIComponent(characterName.trim())}`);
+      }
+      
+      // Add search performed flag
+      searchParamsArray.push('search_performed=true');
+      
+      const searchQuery = searchParamsArray.length > 0 ? '?' + searchParamsArray.join('&') : '?search_performed=true';
+      redirect(searchQuery);
+    } catch (error) {
+      // Check if this is a Next.js redirect (which is expected)
+      if (error instanceof Error && error.message && error.message.includes('NEXT_REDIRECT')) {
+        throw error; // Re-throw redirect errors
+      }
+      console.error('Error processing search form:', error);
+      redirect('/?error=search_error');
     }
-    if (characterName && characterName.trim() !== '') {
-      searchParamsArray.push(`character_name=${encodeURIComponent(characterName.trim())}`);
-    }
-    
-    // Add search performed flag
-    searchParamsArray.push('search_performed=true');
-    
-    const searchQuery = searchParamsArray.length > 0 ? '?' + searchParamsArray.join('&') : '?search_performed=true';
-    redirect(searchQuery);
   }
   
   async function clearSearch() {
@@ -348,6 +357,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
                 <strong className="font-bold text-lg">Database Error</strong>
               </div>
               <p className="mt-2 text-red-200">An error occurred. Please try again.</p>
+            </div>
+          )}
+          {params.error === 'search_error' && (
+            <div className="bg-gradient-to-r from-red-500/20 to-rose-500/20 backdrop-blur-md border border-red-400/50 text-red-100 px-6 py-4 rounded-xl mx-auto max-w-2xl mt-4 shadow-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">⚠️</span>
+                <strong className="font-bold text-lg">Search Error</strong>
+              </div>
+              <p className="mt-2 text-red-200">An error occurred while searching. Please try again.</p>
             </div>
           )}
           
@@ -514,34 +532,34 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
                     <h2 className="text-2xl font-bold text-white">Search Rolls</h2>
                   </div>
                   
-                  <form action={searchForm} className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-200">
-                        Roll ID
-                      </label>
-                      <input 
-                        type="text" 
-                        name="roll_id" 
-                        placeholder="Enter Roll ID" 
-                        defaultValue={params.roll_id || ''}
-                        className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-200">
-                        Character Name
-                      </label>
-                      <input 
-                        type="text" 
-                        name="character_name" 
-                        placeholder="Search by character" 
-                        defaultValue={params.character_name || ''}
-                        className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
+                  <div className="space-y-4">
+                    <form action={searchForm} className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-200">
+                          Roll ID
+                        </label>
+                        <input 
+                          type="text" 
+                          name="roll_id" 
+                          placeholder="Enter Roll ID" 
+                          defaultValue={params.roll_id || ''}
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-200">
+                          Character Name
+                        </label>
+                        <input 
+                          type="text" 
+                          name="character_name" 
+                          placeholder="Search by character" 
+                          defaultValue={params.character_name || ''}
+                          className="w-full px-4 py-3 bg-slate-800/50 border border-blue-500/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all" 
+                        />
+                      </div>
+                      
                       <Button 
                         type="submit"
                         className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-blue-500/25"
@@ -549,19 +567,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
                         <span className="text-lg mr-2">🔍</span>
                         Search
                       </Button>
-                      
-                      {params.search_performed && (
-                        <form action={clearSearch}>
-                          <Button 
-                            type="submit"
-                            className="w-full bg-gradient-to-r from-gray-600 to-slate-600 hover:from-gray-700 hover:to-slate-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200"
-                          >
-                            ✖️ Clear Search
-                          </Button>
-                        </form>
-                      )}
-                    </div>
-                  </form>
+                    </form>
+                    
+                    {params.search_performed && (
+                      <form action={clearSearch}>
+                        <Button 
+                          type="submit"
+                          className="w-full bg-gradient-to-r from-gray-600 to-slate-600 hover:from-gray-700 hover:to-slate-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200"
+                        >
+                          ✖️ Clear Search
+                        </Button>
+                      </form>
+                    )}
+                  </div>
                     
                     <div className="mt-6 p-4 bg-slate-800/30 rounded-lg border border-slate-600/50">
                       <p className="text-sm text-gray-300 mb-2 font-semibold">💡 Search Tips:</p>
