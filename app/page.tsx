@@ -7,6 +7,13 @@ import RollHistoryTable from "@/components/ui/roll-history-table";
 // Function to fetch roll history from database
 async function getRollHistory(rollId?: string, characterName?: string) {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      console.error('DATABASE_URL environment variable is not set');
+      return [];
+    }
+    
+    console.log('Attempting to connect to database...');
     const sql = neon(`${process.env.DATABASE_URL}`);
     
     let rollsQuery;
@@ -146,9 +153,17 @@ async function getRollHistory(rollId?: string, characterName?: string) {
       })
     );
     
+    console.log(`Successfully fetched ${rollsWithDice.length} rolls`);
     return rollsWithDice;
   } catch (error) {
     console.error('Error fetching roll history:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      rollId,
+      characterName,
+      databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set'
+    });
     return [];
   }
 }
@@ -165,8 +180,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
   search_performed?: string,
   no_results?: string
 }> }) {
+  console.log('Starting Home component render...');
   const params = await searchParams;
-  const rollHistory = await getRollHistory(params.roll_id, params.character_name);
+  console.log('Search params:', params);
+  
+  let rollHistory: any[] = [];
+  try {
+    rollHistory = await getRollHistory(params.roll_id, params.character_name);
+    console.log('Roll history fetched successfully');
+  } catch (error) {
+    console.error('Failed to fetch roll history in component:', error);
+    // Continue rendering with empty roll history
+  }
   
   async function searchForm(formData: FormData) {
     'use server';
@@ -206,6 +231,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
   async function form(formData: FormData) {
     'use server';
     try {
+      console.log('Form submission started...');
+      
+      // Check database connection first
+      if (!process.env.DATABASE_URL) {
+        console.error('DATABASE_URL not set');
+        redirect('/?error=database_error');
+        return;
+      }
+      
       // Connect to the Neon database
       const sql = neon(`${process.env.DATABASE_URL}`);
       const username = formData.get('username');
@@ -216,8 +250,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
       const campaign = formData.get('campaign');
       const session_name = formData.get('session_name');
       
+      console.log('Form data received:', { username, character_name, purpose, campaign, session_name });
+      
       // Validate required fields
       if (!username || !character_name || !purpose || !campaign || !session_name) {
+        console.error('Missing required fields');
         redirect('/?error=missing_fields');
         return;
       }
@@ -231,10 +268,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{
     console.log(`Dice Rolls - BD: ${BDRoll.total}, CD: ${CDRoll.total}, LD: ${LDRoll.total}, MD: ${MDRoll.total}`);
 
     // Insert records into the database
+    console.log('Inserting user record...');
     const userid = await sql`INSERT INTO app_user (name, email) VALUES (${username}, ${email}) RETURNING userid`;
+    console.log('User inserted:', userid[0]);
+    
+    console.log('Inserting campaign record...');
     const campaignid = await sql`INSERT INTO campaign (name, title, system, ispublic) VALUES (${campaign}, ${campaign}, 'SAO RPG', true) RETURNING campaignid`;
+    console.log('Campaign inserted:', campaignid[0]);
+    
+    console.log('Inserting character record...');
     const characterid = await sql`INSERT INTO character (name, owneruserid, campaignid) VALUES (${character_name}, ${userid[0].userid}, ${campaignid[0].campaignid}) RETURNING characterid`;
+    console.log('Character inserted:', characterid[0]);
+    
+    console.log('Inserting session record...');
     const sessionid = await sql`INSERT INTO session (title, campaignid, starttime) VALUES (${session_name}, ${campaignid[0].campaignid}, NOW()) RETURNING sessionid`;
+    console.log('Session inserted:', sessionid[0]);
     
     // Insert post record if URL is provided
     let postid = null;
